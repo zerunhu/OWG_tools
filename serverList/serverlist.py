@@ -43,7 +43,7 @@ def list_invalidations(DistributionId="E25WKP9A3QJD99"):
 				continue
 			else:
 				return file_path
-		logging.info("Calling awsApi->list_invalidations: success get last invalidation: {}".format(last_invalidation))
+		logging.info("Calling awsApi->list_invalidations: success get last invalidation: {}".format(file_path))
 	except Exception as e:
 		logging.info("Exception when calling awsApi->list_invalidations, reason: {}".format(e))
 		return False

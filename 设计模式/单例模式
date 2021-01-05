@@ -1,0 +1,17 @@
+class Brog:
+    __share = {"1":"2"}
+    
+    def __init__(self):
+        self.x = 1
+        self.__dict__ = self.__share
+    def get(self):
+        print(self.__dict__)
+
+if __name__=="__main__":
+    a = Brog()
+    b = Brog()
+    a.get()
+    b.get()
+    a.x=3
+    a.get()
+    b.get()
