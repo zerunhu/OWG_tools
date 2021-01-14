@@ -3,11 +3,17 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/Unknwon/goconfig"
 	"github.com/gin-gonic/gin"
@@ -60,8 +66,23 @@ func templateParseFile(json map[string]interface{}) string {
 	return buf.String()
 }
 
+func generate_url() string {
+	secret := getConfValue("conf/conf.ini", "secret")
+	timestamp := time.Now().UnixNano() / 1e6
+	sign := fmt.Sprintf("%d\n%s", timestamp, secret)
+	h := hmac.New(sha256.New, []byte(secret))
+	h.Write([]byte(sign))
+	sign_dec := base64.StdEncoding.EncodeToString(h.Sum(nil))
+	value := url.Values{}
+	value.Set("timestamp", fmt.Sprintf("%d", timestamp))
+	value.Set("sign", sign_dec)
+	url := getConfValue("conf/conf.ini", "url")
+	uri := url + "&" + value.Encode()
+	return uri
+}
+
 func post_request(text string) {
-	apiUrl := getConfValue("conf/conf.ini", "url")
+	apiUrl := generate_url()
 	content := `
 		{"msgtype": "markdown",
 		"markdown": {

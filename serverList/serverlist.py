@@ -2,14 +2,26 @@
 from flask import Flask, request
 import json,os,datetime,time,hashlib,re,requests,logging
 import boto3
+import hmac
+import base64
+import urllib.parse
 logging.basicConfig(level=logging.INFO,format="%(asctime)s %(levelname)s %(message)s",
                     datefmt = '%Y-%m-%d  %H:%M:%S %a'    #注意月份和天数不要搞乱了，这里的格式化符与time模块相同
                     )
 app1 = Flask(__name__)
 
 def send_data_dingtalk(server_id,realstate):
+	##generate sign
+	secret = os.environ.get('SECRET')
 	access_token = os.environ.get('ACCESS_TOKEN')
-	url = "https://oapi.dingtalk.com/robot/send?access_token={}".format(access_token)
+	timestamp = str(round(time.time() * 1000))
+	secret_enc = secret.encode('utf-8')
+	string_to_sign = '{}\n{}'.format(timestamp, secret)
+	string_to_sign_enc = string_to_sign.encode('utf-8')
+	hmac_code = hmac.new(secret_enc, string_to_sign_enc, digestmod=hashlib.sha256).digest()
+	sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
+
+	url = "https://oapi.dingtalk.com/robot/send?access_token={}&timestamp={}&sign={}".format(access_token,timestamp,sign)
 	header = {
 		"Content-Type": "application/json",
 		"charset": "utf-8"

@@ -1,14 +1,26 @@
 # -*- coding:utf-8 -*-
 from flask import Flask, request
 import requests
-import json
+import json,os,time,hashlib,urllib,hmac,base64
 app1 = Flask(__name__)
 '''
 脚本功能：从alertmanager获取到json文件，然后格式化过后再调用其他api进行处理。
 '''
+def generate_url():
+    secret = os.environ.get('SECRET')
+    access_token = os.environ.get('ACCESS_TOKEN')
+    timestamp = str(round(time.time() * 1000))
+    secret_enc = secret.encode('utf-8')
+    string_to_sign = '{}\n{}'.format(timestamp, secret)
+    string_to_sign_enc = string_to_sign.encode('utf-8')
+    hmac_code = hmac.new(secret_enc, string_to_sign_enc, digestmod=hashlib.sha256).digest()
+    sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
+    url = "https://oapi.dingtalk.com/robot/send?access_token={}&timestamp={}&sign={}".format(access_token, timestamp,sign)
+    return url
+
 @app1.route('/', methods=['POST'])
 def send():
-    url = "https://oapi.dingtalk.com/robot/send?access_token=c59842fdd612c145b61782779cbe99615399a4190f1a488d0fe14d0bbbf042ce"
+    url = generate_url()
     header = {
         "Content-Type": "application/json",
         "charset": "utf-8"
