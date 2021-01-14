@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO,format="%(asctime)s %(levelname)s %(messa
                     )
 app1 = Flask(__name__)
 
-def send_data_dingtalk(server_id,realstate):
+def send_data_dingtalk(server_id,realstate,filename):
 	##generate sign
 	secret = os.environ.get('SECRET')
 	access_token = os.environ.get('ACCESS_TOKEN')
@@ -29,7 +29,7 @@ def send_data_dingtalk(server_id,realstate):
 	data = {
 		"msgtype": "text",
 		"text": {
-			"content": "serverList实际状态发生更新,将重新上传新的serverList,请检查确认, server_id:{}, realstate:{}@13142300419".format(server_id,realstate)
+			"content": "serverList实际状态发生更新,将重新上传新的serverList,请检查确认, server_id:{}, realstate:{}@13142300419, serverlist filename: {}".format(server_id,realstate,filename)
 		},
 		"at": {
 			"atMobiles": [
@@ -183,7 +183,7 @@ def updateServerlist():
 		msg = {"code": 200, "status": "Success", "message": "success return, but serverlist not been modified or server_id not exist, server_id: {}, realstate: {}".format(server_id, realstate)}
 		logging.info(msg)
 		return msg
-	send_data_dingtalk(server_id,realstate)
+	send_data_dingtalk(server_id,realstate,file_name)
 	file_name = upload_file(host_file_path,file_name)
 	if not file_name:
 		msg = {"code": 400, "status": "Failed", "message": "upload s3 file error"}
