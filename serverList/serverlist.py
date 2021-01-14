@@ -29,7 +29,7 @@ def send_data_dingtalk(server_id,realstate,filename):
 	data = {
 		"msgtype": "text",
 		"text": {
-			"content": "serverList实际状态发生更新,将重新上传新的serverList,请检查确认, server_id:{}, realstate:{}@13142300419, serverlist filename: {}".format(server_id,realstate,filename)
+			"content": "serverList实际状态发生更新,将重新上传新的serverList,请检查确认, server_id:{}, realstate:{}, serverlist filename: {}, @13142300419".format(server_id,realstate,filename)
 		},
 		"at": {
 			"atMobiles": [
@@ -68,8 +68,8 @@ def get_invalidations_file_path(invalidation_id,DistributionId="E25WKP9A3QJD99")
 		file_path = api_response.get("Invalidation").get("InvalidationBatch").get("Paths").get("Items")[0]
 		file_path = file_path.split("/")[-1]
 		#firestrike0.10.8  \D非数字 \d数字
-		# if not re.match("\D+\d+\.\d+\.\d+",file_path):
-		if not re.match("\D+_\D+",file_path):
+		if not re.match("serverlist\d+\.\d+\.\d+",file_path):
+		# if not re.match("\D+_\D+",file_path):
 			return 1
 		logging.info("Calling awsApi->get_invalidations: success get file_path, response: {}".format(api_response))
 		return file_path
