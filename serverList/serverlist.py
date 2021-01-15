@@ -26,11 +26,12 @@ def send_data_dingtalk(server_id,realstate,update_files,noupdate_files):
 		"Content-Type": "application/json",
 		"charset": "utf-8"
 	}
+	msg1 = "{}因为serverId不存在或者realstate没有发生改变不更新,".format(noupdate_files) if noupdate_files else ""
+	msg2 = "serverList实际状态发生更新,将重新上传新的serverList,请检查确认, server_id:{}, realstate:{}, {}将被更新, {} @13142300419".format(server_id,realstate,", ".join(update_files),msg1)
 	data = {
 		"msgtype": "text",
 		"text": {
-			"content": "serverList实际状态发生更新,将重新上传新的serverList,请检查确认, server_id:{}, realstate:{}, \
-			{}将被更新,{}因为serverId不存在或者realstate没有发生改变不更新, @13142300419".format(server_id,realstate,update_files,noupdate_files)
+			"content": msg2
 		},
 		"at": {
 			"atMobiles": [
@@ -117,10 +118,10 @@ def update_file(file_path,server_id,realstate):
 		params = json.load(f)
 		for param in params:
 			if param.get("id") == server_id:
-				logging.info(param["realstate"])
 				if param["realstate"] != realstate:
 					param["realstate"] = realstate
 					is_update = True
+					logging.info("serverlist update, server_id: {}, old realstate: {}".format(server_id, param["realstate"]))
 					break
 				break
 		data = params
